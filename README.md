@@ -93,4 +93,8 @@ Governance documents (`docs/`), audit artefacts (`results/`), and figures
 ## Citation
 
 If you use this resource, please cite the Data Descriptor and the archived code
-release (DOI to be assigned on Zenodo publication).
+release: DOI [10.5281/zenodo.22846134](https://doi.org/10.5281/zenodo.22846134)
+(concept DOI; the v1.0.0 release is archived as
+[10.5281/zenodo.22846135](https://doi.org/10.5281/zenodo.22846135)).
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22846134.svg)](https://doi.org/10.5281/zenodo.22846134)
