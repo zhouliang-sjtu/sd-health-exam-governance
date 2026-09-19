@@ -1,0 +1,5 @@
+库C 阴性对照（未注入）
+行数: 1,389,967
+签名阳性行: 0
+阳性率: 0.0000%
+逐规则: r01_shift_probe=0, r02_shift_fb=0, r03_bp_rev=0, r04_hdl_gt_tc=0, r05_ldl_gt_tc=0, r06_ua_low=0, r07_fpg_low=0, r08_bmi_incons=0, r09_tg_high=0, r10_crea_low=0, r14_altast_high=0

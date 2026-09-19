@@ -1,0 +1,17 @@
+﻿rule,A(库A),B(库B),C(库C)
+移位主探针 r01（bun/urea 位>25 & ua 位<90）,"actioned (移位修复 9,396 行 + 残差扫描 0)",structurally-na (无 bun),scan-absent (探针字段具备可做未做；无移位事件已知)
+移位回落 r02（crea 位 150–1500 & ua 位 2–20）,"actioned (移位修复 9,396 行 + 残差扫描 0)",scan-absent (r02 字段具备可做未做；无移位事件已知),scan-absent (探针字段具备可做未做；无移位事件已知)
+血压颠倒 SBP<DBP,actioned (n=130),"structurally-na (无 sbp,dbp)",actioned (n=52)
+脂类反转 HDL>TC,actioned (n=4),actioned (n=0),actioned (n=38)
+脂类反转 LDL>TC,actioned (n=14),gap (本次扫描残留 0 行),actioned (n=973)
+尿酸单位混串 UA<120,actioned (n=131),actioned (n=35),actioned (n=323)
+血糖下限 FPG<3.0,actioned (n=14),actioned (n=1),"actioned (n=2,072)"
+BMI 恒等式 |BMI−W/H²|>2.5,actioned (n=33),"structurally-na (无 bmi,height,weight)",actioned (n=207)
+TG 上限 >25,actioned (n=5),actioned (n=45),actioned (n=33)
+肌酐下限 <20,actioned (n=6),actioned (n=4),"actioned (n=1,676)"
+血小板上限 >800,actioned (n=6),gap (本次扫描残留 2 行),structurally-na (无 plt)
+血红蛋白下限 <60,actioned (n=17),structurally-na (无 hb),structurally-na (无 hb)
+白细胞上限 >25,actioned (n=15),structurally-na (无 wbc),structurally-na (无 wbc)
+转氨酶天花板 >1500,actioned (n=3),gap (本次扫描残留 0 行),actioned (n=1)
+文本域错配（ECG 文本含超声词）,actioned via 2022 移位重映射；独立词典扫描未单列证据,structurally-na (无自由文本字段),extraction-domain (us_text/ecg_text 已抽取，清洗域外)
+年龄合理性 age<18,"flag-only (签名标记 n=24, 未见置缺动作)",not-scanned,not-scanned

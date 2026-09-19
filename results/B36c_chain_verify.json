@@ -1,0 +1,19 @@
+{
+ "nUrineECG": 7159,
+ "radIsECG": 7001,
+ "radEmpty": 1,
+ "radOther": 157,
+ "urineColOK": 7158,
+ "radSamples": [
+  "窦性心律\n一度房室传导阻滞\nQ-T间期延长",
+  "正常心电图",
+  "窦性心律\n电轴左偏(电轴-35度\n)部分导联T波改变:TⅠ、aVL、Ⅱ、Ⅲ、aVF、V1、V2、V3",
+  "窦性心律\n完全性右束支阻滞",
+  "窦性心律"
+ ],
+ "nRadECG": 11245,
+ "ecgColUrine": 7001,
+ "ecgColECG": 0,
+ "ecgColEmpty": 165,
+ "ecgColOther": 4079
+}
