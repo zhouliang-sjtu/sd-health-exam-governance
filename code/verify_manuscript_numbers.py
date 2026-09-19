@@ -13,10 +13,10 @@ import re
 import sys
 import pandas as pd
 
-BASE = r"<institution-path>"
+BASE = r"D:\projects\Paper\论文00-多源体检队列数据治理与质量审计"
 RES = os.path.join(BASE, "results")
-CLEAN = r"<institution-path>"
-SANXIAN = r"<institution-path>"
+CLEAN = r"D:\projects\Paper\00-清洗源数据库"
+SANXIAN = r"D:\projects\Paper\00-三线探索-多模态动态队列"
 MS = os.path.join(BASE, "20_paper-methodology", "Manuscript_SciData_v1.md")
 
 paths = sys.argv[1:] or [MS]
@@ -175,7 +175,7 @@ src_ok("readme 842/563", clean_readme, "842 个检验项目逐项目统计与值
 
 # ============ 4b. 文本域审计与血缘（2026-09-19 升级节源锚） ============
 import json
-GOV = r"<institution-path>"
+GOV = r"D:\projects\Paper\00-数据质量核验与治理-20260917"
 b36c = json.load(open(os.path.join(GOV, "B36c_chain_verify.json"), encoding="utf-8"))
 b50 = open(os.path.join(GOV, "B50_impact_assessment.md"), encoding="utf-8").read()
 baobei = open(os.path.join(GOV, "论文00报备记录_20260917.md"), encoding="utf-8").read()
@@ -298,8 +298,11 @@ for name, needle in [
     ("DA heading", "## Data Availability"),
     ("ph DA repo", "INSERT CONTROLLED-ACCESS REPOSITORY"),
     ("CA heading", "## Code Availability"),
-    ("ph CA repo", "INSERT GITHUB REPOSITORY"),
-    ("ph dc open", "OPEN REPOSITORY AND DOI/PID REQUIRED"),
+    ("open repo github filled", "github.com/zhouliang-sjtu/sd-health-exam-governance"),
+    ("zenodo concept doi filled", "10.5281/zenodo.22846134"),
+    ("code mit licence filled", "under the MIT licence"),
+    ("da ccby licence filled", "under the CC BY 4.0 licence"),
+    ("ref12 open filled", "Governance artefacts: signature library, rule charter, audit tables"),
     ("ph dc ctrl", "CONTROLLED-ACCESS REPOSITORY AND DOI/PID REQUIRED"),
     ("BS fault families", "three recurrent fault families"),
     ("BS waves risk", "repeated annual exports create additional operational risks"),
@@ -389,6 +392,10 @@ for name, needle in [
     ("旧占位 OPTIONAL acks", "OPTIONAL: add acknowledgements"),
     ("旧占位 CONTRIBUTIONS", "AUTHOR CONTRIBUTIONS REQUIRED"),
     ("旧占位 FUNDING", "FUNDING INFORMATION REQUIRED"),
+    ("旧占位 CA GITHUB", "INSERT GITHUB REPOSITORY"),
+    ("旧占位 DA OPEN", "INSERT OPEN REPOSITORY, DOI/PID, AND LICENCE"),
+    ("旧占位 REF12 OPEN", "OPEN REPOSITORY AND DOI/PID REQUIRED"),
+    ("旧占位 README DOI", "DOI to be assigned"),
 ]:
     check(f"ban.{name}", needle, in_text=False)
 
