@@ -1,0 +1,29 @@
+﻿rule,action,column,n_rows,by_wave,layer
+r03_bp_rev,nullify both,sbp,130,"{""2019"": 109, ""2020"": 7, ""2021"": 5, ""2022"": 4, ""2018"": 3, ""2023"": 2}",H_checkup_long_v3.6
+r03_bp_rev,nullify both,dbp,130,"{""2019"": 109, ""2020"": 7, ""2021"": 5, ""2022"": 4, ""2018"": 3, ""2023"": 2}",H_checkup_long_v3.6
+r04_hdl_gt_tc,nullify,hdl,4,"{""2020"": 2, ""2022"": 2}",H_checkup_long_v3.6
+r05_ldl_gt_tc,nullify,ldl,14,"{""2022"": 9, ""2020"": 2, ""2021"": 2, ""2018"": 1}",H_checkup_long_v3.6
+r06_ua_low,nullify,ua,130,"{""2022"": 25, ""2023"": 23, ""2018"": 21, ""2024"": 19, ""2021"": 16, ""2020"": 15, ""2019"": 11}",H_checkup_long_v3.6
+r07_fpg_low,nullify,fpg,14,"{""2024"": 3, ""2023"": 3, ""2022"": 3, ""2018"": 2, ""2019"": 1, ""2020"": 1, ""2021"": 1}",H_checkup_long_v3.6
+r08_bmi_incons,recompute,bmi,33,"{""2023"": 10, ""2022"": 5, ""2018"": 4, ""2024"": 4, ""2019"": 4, ""2020"": 3, ""2021"": 3}",H_checkup_long_v3.6
+r09_tg_high,nullify,tg,5,"{""2022"": 4, ""2019"": 1}",H_checkup_long_v3.6
+r10_crea_low,nullify,crea,6,"{""2023"": 2, ""2022"": 2, ""2019"": 1, ""2018"": 1}",H_checkup_long_v3.6
+r11_plt_high,nullify,plt,6,"{""2023"": 3, ""2019"": 1, ""2020"": 1, ""2022"": 1}",H_checkup_long_v3.6
+r12_hb_low,nullify,hb,17,"{""2022"": 7, ""2018"": 3, ""2019"": 2, ""2023"": 2, ""2024"": 2, ""2021"": 1}",H_checkup_long_v3.6
+r13_wbc_high,nullify,wbc,15,"{""2024"": 7, ""2018"": 3, ""2022"": 2, ""2023"": 2, ""2020"": 1}",H_checkup_long_v3.6
+r14_altast_high,nullify,alt,2,"{""2018"": 1, ""2020"": 1}",H_checkup_long_v3.6
+r14_altast_high,nullify,ast,1,"{""2018"": 1}",H_checkup_long_v3.6
+r03_bp_rev,nullify both,sbp,103,"{""2019"": 100, ""2018"": 2, ""2020"": 1}",H_wave_level_v1.0(regen)
+r03_bp_rev,nullify both,dbp,103,"{""2019"": 100, ""2018"": 2, ""2020"": 1}",H_wave_level_v1.0(regen)
+r04_hdl_gt_tc,nullify,hdl,4,"{""2020"": 2, ""2022"": 2}",H_wave_level_v1.0(regen)
+r05_ldl_gt_tc,nullify,ldl,14,"{""2022"": 9, ""2021"": 2, ""2020"": 2, ""2018"": 1}",H_wave_level_v1.0(regen)
+r06_ua_low,nullify,ua,117,"{""2022"": 22, ""2023"": 22, ""2018"": 18, ""2024"": 18, ""2021"": 15, ""2020"": 13, ""2019"": 9}",H_wave_level_v1.0(regen)
+r07_fpg_low,nullify,fpg,14,"{""2022"": 3, ""2023"": 3, ""2024"": 3, ""2018"": 2, ""2019"": 1, ""2020"": 1, ""2021"": 1}",H_wave_level_v1.0(regen)
+r08_bmi_incons,recompute,bmi,19,"{""2023"": 9, ""2021"": 3, ""2018"": 2, ""2020"": 2, ""2024"": 1, ""2019"": 1, ""2022"": 1}",H_wave_level_v1.0(regen)
+r09_tg_high,nullify,tg,5,"{""2022"": 4, ""2019"": 1}",H_wave_level_v1.0(regen)
+r10_crea_low,nullify,crea,5,"{""2023"": 2, ""2019"": 1, ""2018"": 1, ""2022"": 1}",H_wave_level_v1.0(regen)
+r11_plt_high,nullify,plt,5,"{""2023"": 3, ""2020"": 1, ""2019"": 1}",H_wave_level_v1.0(regen)
+r12_hb_low,nullify,hb,13,"{""2022"": 4, ""2018"": 2, ""2023"": 2, ""2024"": 2, ""2019"": 2, ""2021"": 1}",H_wave_level_v1.0(regen)
+r13_wbc_high,nullify,wbc,14,"{""2024"": 7, ""2018"": 2, ""2022"": 2, ""2023"": 2, ""2020"": 1}",H_wave_level_v1.0(regen)
+r14_altast_high,nullify,alt,2,"{""2020"": 1, ""2018"": 1}",H_wave_level_v1.0(regen)
+r14_altast_high,nullify,ast,1,"{""2018"": 1}",H_wave_level_v1.0(regen)

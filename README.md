@@ -29,7 +29,8 @@ controlled access (see *Data availability*).
 ├── docs/                            Governance charter (rule charter, single authoritative source) and
 │                                    per-database governance reports
 ├── results/                         Machine-readable governance artefacts:
-│   ├── DATA_MANIFEST_v3.5.json      Frozen-release manifest (lineage, known defects, SHA-256 fingerprints)
+│   ├── DATA_MANIFEST_v3.6.json      Frozen-release manifest (lineage, known defects, SHA-256 fingerprints)
+│   ├── B67_value_nullify_v36_audit.csv  Value-level nullification audit (v3.6 remediation, 474 actions)
 │   ├── m2_*.csv/.txt/.gz            Injection-validation outputs (grid summary, origin coverage, replicates,
 │   │                                blind 2022 re-detection, PD negative control, portability, wave extrapolation)
 │   ├── audit_residuals_libB/libC.csv  Post-governance residual rows (library B: 2 rows; library C: none)
@@ -66,15 +67,26 @@ harness, audit tooling, and figure generation run entirely on the artefacts in
 `results/` and require no institutional data.
 
 `code/verify_manuscript_numbers.py` re-derives every quantitative claim in the
-manuscript from the artefacts in `results/` and exits non-zero on any mismatch.
+manuscript (currently 328 checks, including a reverse scan asserting that every
+number in the prose is covered by an artefact-derived anchor or a documented
+whitelist, and SHA-256 fingerprint assertions for every file in the frozen
+manifest) and exits non-zero on any mismatch. The copy shipped here is the
+workspace edition with institutional paths replaced by placeholders: it
+documents the full audit logic, and the audit itself is re-run in the authors'
+workspace, where the manuscript sources and internal ledgers it cross-checks
+reside.
 
 ## Data availability
 
-The cleaned analysis layer, row-identical mirror layers, and laboratory long
-table (DR1–DR4) contain de-identified but individual-level human data and are
-available under **controlled access** through the institutional data-access
-committee. Requests are reviewed for compliant secondary use. No individual-level
-records, identifier mappings, or PII scans are included in this repository.
+The cleaned analysis layers, row-identical mirror layers, and laboratory long
+table (DR1–DR3) contain de-identified but individual-level human data and are
+available under **controlled access** (restricted metadata deposits on Zenodo,
+concept DOIs 10.5281/zenodo.22846416, 10.5281/zenodo.22846608, and
+10.5281/zenodo.22846678). Requests follow an available-but-not-visible model:
+approved analyses are executed by the project platform on the requester's
+behalf and only statistical result tables are returned. This repository is
+itself the open governance-artefact record (DR4). No individual-level
+records, identifier mappings, or PII scans are included here.
 
 ## Ethics
 
@@ -93,8 +105,5 @@ Governance documents (`docs/`), audit artefacts (`results/`), and figures
 ## Citation
 
 If you use this resource, please cite the Data Descriptor and the archived code
-release: DOI [10.5281/zenodo.22846134](https://doi.org/10.5281/zenodo.22846134)
-(concept DOI; the v1.0.0 release is archived as
-[10.5281/zenodo.22846135](https://doi.org/10.5281/zenodo.22846135)).
-
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22846134.svg)](https://doi.org/10.5281/zenodo.22846134)
+release: concept DOI [10.5281/zenodo.22846134](https://doi.org/10.5281/zenodo.22846134)
+(v1.0.0: 10.5281/zenodo.22846135; this release: DOI assigned on publication).

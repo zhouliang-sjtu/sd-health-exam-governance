@@ -13,16 +13,18 @@ import re
 import sys
 import pandas as pd
 
-BASE = r"D:\projects\Paper\论文00-多源体检队列数据治理与质量审计"
+BASE = r"<institution-path>"
 RES = os.path.join(BASE, "results")
-CLEAN = r"D:\projects\Paper\00-清洗源数据库"
-SANXIAN = r"D:\projects\Paper\00-三线探索-多模态动态队列"
+CLEAN = r"<institution-path>"
+SANXIAN = r"<institution-path>"
 MS = os.path.join(BASE, "20_paper-methodology", "Manuscript_SciData_v1.md")
+SI = os.path.join(BASE, "manuscript", "Supplementary_SciData_v1.md")
+CL = os.path.join(BASE, "manuscript", "submission_kit_v1", "04_cover_letter", "Cover_Letter.md")
 
-paths = sys.argv[1:] or [MS]
-raw = "\n".join(open(p, encoding="utf-8").read() for p in paths)
-# 只校验稿件正文——"## 写作备忘（不进稿）"及之后内容不参与（含 566 口径注记等内部信息）
-text = raw.split("## 写作备忘")[0]
+paths = sys.argv[1:] or [MS, SI, CL]
+# 逐文件切分："## 写作备忘（不进稿）"及之后内容不参与（含 566 口径注记等内部信息）；
+# R6-12 修复：联合 MS+SI+CL 时必须按文件分别切分，否则 SI/CL 会被主稿的写作备忘整体截掉
+text = "\n".join(open(p, encoding="utf-8").read().split("## 写作备忘")[0] for p in paths)
 checks = []
 
 
@@ -64,6 +66,9 @@ check("repair 0.998", f"{med(gc.repair_acc_med):.3f}")
 d3 = gc[(gc.k == 1) & (gc.block == "contig")].sort_values("rate")
 check("dmfab 50/248/495",
       " / ".join(f"{med(d3[d3.rate == r].dmfab_med):.0f}" for r in (0.01, 0.05, 0.1)))
+check("per-cell range == artifact（R6-2 联合断言，防字符串锚错值）",
+      f"{gc.recall_med.min():.3f}–{gc.recall_med.max():.3f}")
+check("568/9396 runtime pct（R6-3 推导锚）", f"{568 / 9396:.1%}")
 
 # ============ 2. origin coverage（22 起点 × 20 reps） ============
 oc = pd.read_csv(os.path.join(RES, "m2_origin_coverage.csv"))
@@ -79,7 +84,7 @@ check("tc partial 0.922", f"{ocm.get('tc', float('nan')):.3f}")
 
 # ============ 3. 盲态 2022 / 库C 阴性 / 迁移 / 外推域 ============
 bl = open(os.path.join(RES, "m2_blind2022.txt"), encoding="utf-8").read()
-check("blind 9,381", re.search(r"flagged (\d+)", bl).group(1).replace(",", ","))
+check("blind 9,381", re.search(r"flagged ([\d,]+)", bl).group(1))
 check("blind 9,500", re.search(r"注入真值行: ([\d,]+)", bl).group(1))
 bl_flag = int(re.search(r"flagged ([\d,]+)", bl).group(1).replace(",", ""))
 bl_true = int(re.search(r"注入真值行: ([\d,]+)", bl).group(1).replace(",", ""))
@@ -125,6 +130,9 @@ def audit_total(prefix, src_df=None):
 
 
 clean_readme = open(os.path.join(CLEAN, "README.md"), encoding="utf-8").read()
+paper_readme = open(os.path.join(BASE, "README.md"), encoding="utf-8").read()
+src_ok("paper readme 30 forms（28.9M 口径源）", paper_readme, "30 张原始表单")
+src_ok("paper readme 2,890 万（28.9M 口径源）", paper_readme, "~2,890 万行")
 
 
 def src_eq(name, derived, expected):
@@ -164,6 +172,7 @@ src_ok("PD v1.1 ldl 973", pd_rep, "ldl>tc 置缺 973")
 src_ok("PD v1.1 bmi 207", pd_rep, "bmi恒等式 置缺 207")
 src_ok("PD v1.1 altast 1", pd_rep, "alt/ast>1500 置缺 1")
 src_ok("PD rep hdl 38", pd_rep, "hdl>tc 置缺 38")
+src_ok("PD rep 人级输出 686,688（反向扫描补源锚）", pd_rep, "人级输出: 686,688")
 src_ok("PD rep tg 33", pd_rep, "tg>25 置缺 33")
 src_ok("PD rep ua range 808", pd_rep, "尿酸→ua: 808")
 src_ok("PD rep tbil range 627", pd_rep, "总胆红素→tbil: 627")
@@ -175,12 +184,14 @@ src_ok("readme 842/563", clean_readme, "842 个检验项目逐项目统计与值
 
 # ============ 4b. 文本域审计与血缘（2026-09-19 升级节源锚） ============
 import json
-GOV = r"D:\projects\Paper\00-数据质量核验与治理-20260917"
+GOV = r"<institution-path>"
 b36c = json.load(open(os.path.join(GOV, "B36c_chain_verify.json"), encoding="utf-8"))
+b36s = pd.read_csv(os.path.join(GOV, "B36_suspects.csv"))
+src_eq("B36_suspects rows 24（24 对源锚）", int(len(b36s)), 24)
 b50 = open(os.path.join(GOV, "B50_impact_assessment.md"), encoding="utf-8").read()
 baobei = open(os.path.join(GOV, "论文00报备记录_20260917.md"), encoding="utf-8").read()
 zongkong = open(os.path.join(GOV, "00_问题清单总控.md"), encoding="utf-8").read()
-mani = json.load(open(os.path.join(RES, "DATA_MANIFEST_v3.5.json"), encoding="utf-8"))
+mani = json.load(open(os.path.join(RES, "DATA_MANIFEST_v3.6.json"), encoding="utf-8"))
 src_eq("b36c urine rows 7,159", int(b36c["nUrineECG"]), 7159)
 src_eq("b36c rad ECG 7,001", int(b36c["radIsECG"]), 7001)
 src_eq("b36c reverse 0", int(b36c["ecgColECG"]), 0)
@@ -199,7 +210,7 @@ src_ok("ledger 7,179/7,180", baobei, "7,179/7,180")
 src_ok("ledger 97.8%", baobei, "97.8%")
 src_ok("总控 bare rebuild 0.433→0.224", zongkong, "0.433→0.224")
 src_ok("总控 uprot 11,850→20,916", zongkong, "11,850→20,916")
-src_eq("manifest db version v3.5", str(mani.get("database_version")), "v3.5")
+src_eq("manifest db version v3.6", str(mani.get("database_version")), "v3.6")
 
 # ============ 5. 稿件数字存在性（写法变体兼容；2026-09-17 导师合并版锚点） ============
 for name, needle in [
@@ -209,7 +220,7 @@ for name, needle in [
     ("abs C", "1,389,967 regional examination records linked to 54,490 mortality records"),
     ("abs workflow", "detect–quantify–repair–verify workflow"),
     ("abs release", "controlled-access cleaned and mirror layers"),
-    ("shift 9,396", "9,396 shifted rows, 6.1%"),
+    ("shift 9,396 + 6.0%", "9,396 shifted rows, 6.0%"),
     ("568 fab", "568 fabricated positives removed"),
     ("598→70,678", "recovered 70,678 usable records (from 598)"),
     ("4800 injections", "4,800 injections total"),
@@ -229,14 +240,13 @@ for name, needle in [
     ("B=200", "B = 200"),
     ("24 cells", "24 grid cells"),
     ("20 reps/origin", "20 replicates per template position"),
-    ("per-cell 0.983–0.986", "0.983–0.986"),
+    ("per-cell 0.985–0.986", "0.985–0.986"),
     ("p05 0.978", "0.978"),
     ("boundary zero", "boundary-localisation error **0 rows**"),
     ("repair <0.2%", "below 0.2%"),
     ("domain 0.985|0.984", "recall 0.985; calibration domain 2018–2021: 0.984"),
     ("counterfactual 50/248/495", "50 / 248 / 495"),
-    ("4.8% vs 6.1%", "4.8% of shifted rows"),
-    ("6.1% hist", "6.1%)"),
+    ("4.8% vs 6.0% 派生", "4.8% of shifted rows"),
     ("14 origins", "recall ≥0.95) for 14 origins"),
     ("lipid 0.09", "recall 0.09"),
     ("port 0.58/0.76", "recall 0.58 at random origins (F1 0.76)"),
@@ -287,38 +297,51 @@ for name, needle in [
     ("funding rfp", "2022YFD2101500"),
     ("funding yg", "YG2025LC14"),
     ("funding no role", "had no role in"),
-    ("methods data citations", "governance-artefact record DR4¹²"),
-    ("methods DR13-15", "cohort records DR1–DR3¹³–¹⁵"),
+    ("methods data citations", "governance-artefact record DR4¹⁵"),
+    ("methods DR16-18", "cohort records DR1–DR3¹⁶–¹⁸"),
     ("ai heading", "### Generative AI assistance"),
     ("ai declaration", "ChatGPT (OpenAI)"),
     ("DR controlled access", "shared under controlled access"),
-    ("ph repository", "REPOSITORY CONFIRMATION REQUIRED"),
-    ("DR table ref", "governance-artefact record (Table 2)"),
-    ("ph doi note", "BEFORE SUBMISSION/PUBLICATION"),
+    ("dr12-15 zenodo restricted", "restricted metadata deposits on Zenodo"),
+    ("dr records ref", "governance-artefact record (Table 2)"),
+    ("dr4 table open ref（R11 修复锚）", "Open¹⁵"),
+    ("dr doi resolvable", "resolvable persistent identifiers"),
+    ("da available-not-visible", "available-but-not-visible model"),
+    ("da first-author-lz", "addressed to the first author (L.Z.)"),
+    ("ref13 doi", "zenodo.22846416"),
+    ("ref14 doi", "zenodo.22846608"),
+    ("ref15 doi", "zenodo.22846678"),
     ("DA heading", "## Data Availability"),
-    ("ph DA repo", "INSERT CONTROLLED-ACCESS REPOSITORY"),
-    ("CA heading", "## Code Availability"),
     ("open repo github filled", "github.com/zhouliang-sjtu/sd-health-exam-governance"),
     ("zenodo concept doi filled", "10.5281/zenodo.22846134"),
     ("code mit licence filled", "under the MIT licence"),
     ("da ccby licence filled", "under the CC BY 4.0 licence"),
     ("ref12 open filled", "Governance artefacts: signature library, rule charter, audit tables"),
-    ("ph dc ctrl", "CONTROLLED-ACCESS REPOSITORY AND DOI/PID REQUIRED"),
+    ("CA heading", "## Code Availability"),
     ("BS fault families", "three recurrent fault families"),
     ("BS waves risk", "repeated annual exports create additional operational risks"),
-    ("cite 9 drift", "item-name drift⁹"),
-    ("cite 10 dedup", "duplication defects¹⁰"),
-    ("cite 11 reuse", "reuse¹¹"),
-    ("cite 16 usage", "anonymisation practice¹⁶"),
+    ("cite 12 drift", "item-name drift¹²"),
+    ("cite 13 dedup", "duplication defects¹³"),
+    ("cite 14 reuse", "reuse¹⁴"),
+    ("cite 19 usage", "anonymisation practice¹⁹"),
+    ("ref5 title", "Data quality assessment in healthcare, dimensions, methods and tools"),
+    ("ref7 title", "Increasing trust in real-world evidence through evaluation of observational data quality"),
+    ("ref11 title", "Assessment of the integrity of real-time electronic health record data"),
+    ("BS dimensions review", "most frequently assessed dimensions⁵"),
+    ("BS software refs", "increasingly available⁶,⁷"),
+    ("BS range 8-10", "definitions⁸–¹⁰"),
+    ("BS waves ref11", "between waves¹¹ (Fig. 1)"),
+    ("dr 28.9M total", "30 raw source forms totalling 28.9 million records"),
+    ("cohort B years", "4 waves (2023–2026)"),
     ("privacy crossref DA", "described in Data Availability"),
     ("ECG first use", "electrocardiogram (ECG)"),
     # ---- 图与 SI 表正文引用（R7-I/F 轮修复）----
-    ("fig1 cited", "between waves (Fig. 1)"),
+    ("fig1 cited", "between waves¹¹ (Fig. 1)"),
     ("fig2 cited", "structural template shifts (Fig. 2)"),
     ("fig3 cited", "injection ground truth (Fig. 3)"),
-    ("S1 cited", "full grid in Table S1"),
-    ("S2 cited", "full map in Table S2"),
-    ("S3 cited", "implementation mapping in Table S3"),
+    ("S1 cited", "implementation mapping in Table S1"),
+    ("S2 cited", "full grid in Table S2"),
+    ("S3 cited", "full map in Table S3"),
     ("S4 cited", "artefact inventory in Table S4"),
     ("S5 cited", "per-repair audit samples in Table S5"),
     # ---- 文本域审计与血缘（2026-09-19 升级节）----
@@ -337,8 +360,8 @@ for name, needle in [
     ("false positive family", "lack domain exclusivity"),
     ("bare rebuild ecg", "from 0.433 to 0.224"),
     ("bare rebuild uprot", "11,850 to 20,916"),
-    ("parity 122,574", "(122,574 keys)"),
-    ("frozen v3.5 manifest", "frozen v3.5 manifest"),
+    ("parity 122,574", "122,574 of them"),
+    ("frozen v3.6 manifest", "frozen v3.6 manifest"),
     ("rule15 matrix", "header-domain × content-domain matrix (186 text columns × 7 waves)"),
     ("scanner distributed", "scanner is distributed with the repository code"),
     ("quantification displaced text", "displaced-text recovery counts"),
@@ -351,6 +374,13 @@ for name, needle in [
     ("urine refill 9,429", "9,429 urinary values"),
     ("scattered 500", "approximately 500 scattered numeric values"),
     ("single-year architecture", "single-year clean-library architecture"),
+    # ---- 周期3 建档轮反向扫描预扫补锚（2026-09-22）：正文数据断言此前未锚 ----
+    ("fig2c counts 1,678→2,437", "1,678→2,437"),
+    ("fig2c counts 1,545→3,085", "1,545→3,085"),
+    ("spot-check agreement 99.95–99.97%", "99.95–99.97%"),
+    ("case cells 12（case-origin 格数）", f"{len(gc)} cells"),
+    ("urine-pH Gaussian spec", "mean 6.2, SD 0.5, truncated to [4.5, 8.5]"),
+    ("cohort C individuals 686,688（反向扫描补锚）", "686,688"),
 ]:
     check(f"ms.{name}", needle)
 
@@ -370,7 +400,6 @@ for name, needle in [
     # ---- 导师版陈旧口径（2026-09-17 合并裁决：一律禁入）----
     ("旧标题 Silent corruption", "Silent corruption"),
     ("旧审计计数 84", "all 84 checks"),
-    ("旧盲态双重舍入 0.988", "0.988"),
     ("旧措辞 indistinguishable", "indistinguishable"),
     ("旧措辞 right-shifted", "right-shifted"),
     ("旧措辞 transfusion-band", "transfusion-band"),
@@ -380,6 +409,10 @@ for name, needle in [
     ("旧平台 Windows or Linux", "Windows or Linux"),
     ("旧 uniform schema", "uniform schema"),
     ("旧摘要 ~28.9 million", "~28.9 million"),
+    ("旧 6.1% 派生（R6-3）", "6.1%"),
+    ("旧 SI 审计计数 253（R6-6）", "253/253"),
+    ("边界 gold-standard 任意形态（R6-1，含图件生成器）", "gold-standard"),
+    ("旧 DR4 表内引用编号 Open¹²（R11 回归锚）", "Open¹²"),
     # ---- 边界政策（2026-09-19）：标注相关量化不得入论文00 ----
     ("边界 gold-standard samples", "curated gold-standard"),
     ("边界 85% 伪影（论文01 专域）", "85%"),
@@ -396,12 +429,138 @@ for name, needle in [
     ("旧占位 DA OPEN", "INSERT OPEN REPOSITORY, DOI/PID, AND LICENCE"),
     ("旧占位 REF12 OPEN", "OPEN REPOSITORY AND DOI/PID REQUIRED"),
     ("旧占位 README DOI", "DOI to be assigned"),
+    ("旧占位 REPO CONFIRM", "REPOSITORY CONFIRMATION REQUIRED"),
+    ("旧占位 DOI NOTE", "BEFORE SUBMISSION/PUBLICATION: replace"),
+    ("旧占位 DA CTRL", "INSERT CONTROLLED-ACCESS REPOSITORY NAME"),
+    ("旧占位 REF13-15 CTRL", "CONTROLLED-ACCESS REPOSITORY AND DOI/PID REQUIRED"),
 ]:
     check(f"ban.{name}", needle, in_text=False)
 
-# ============ 7. 审计计数自检（动态：稿件声明的检查总数须等于本脚本实际检查数） ============
-audit_n = len(checks) + 1
+# 数字类禁入仅护主稿（SI 表格极值/计数列可能合法出现相同数字，如覆盖谱 min–max=0.988）
+ms_text_ban = open(MS, encoding="utf-8").read().split("## 写作备忘")[0]
+for name, needle in [
+    ("旧盲态双重舍入 0.988", "0.988"),
+    ("快照预估 2,080", "2,080"),
+    ("快照预估 326 行", "326 行"),
+    ("G01b 注释 566", "566"),
+    ("PD 含重复口径 1,407,195", "1,407,195"),
+    ("H 人级旧数 30,678", "30,678"),
+    ("旧摘要 70,180", "70,180"),
+    ("旧残留口径 0.203%", "0.203"),
+    ("旧残留口径 2,828", "2,828"),
+    ("旧可移植性 F1 0.72", "F1 0.72"),
+]:
+    checks.append((needle not in ms_text_ban, f"ban.{name}", f"(不得出现·主稿) {needle}"))
+
+# ============ 7. 审计计数自检（动态：稿件与 SI 声明的检查总数须等于本脚本实际检查数） ============
+# 偏移 16 = 本节自检 2 + §8 图件护栏 4 + §9 反向扫描 1 + §10 manifest 指纹 9（周期3 建档轮补建后口径）
+audit_n = len(checks) + 16
 check("audit count self", f"passes all {audit_n} checks")
+check("si audit count（SI 头部与 Table S4 的 N 须等于本脚本实际检查数）",
+      f"{audit_n}/{audit_n} checks PASS")
+
+# ============ 8. 图件生成器边界扫描 + 引用首现单调性（R6-12 / I 专项机检化） ============
+fg = open(os.path.join(BASE, "code", "make_figures_sd.py"), encoding="utf-8").read()
+src_eq("fig gen 无 gold-standard（R6-1 回归护栏）", "gold-standard" in fg, False)
+src_ok("fig gen 量化行与主稿同源", fg, "fabricated-diagnosis counts")
+
+_tr = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789")
+ms_only = open(MS, encoding="utf-8").read().split("## 写作备忘")[0].replace("height²", "height^2")
+sup_runs = re.findall(r"[¹²³⁴⁵⁶⁷⁸⁹⁰]+(?:–[¹²³⁴⁵⁶⁷⁸⁹⁰]+)*", ms_only)
+_seq = []
+for _run in sup_runs:
+    _parts = _run.split("–")
+    if len(_parts) == 2:
+        _a, _b = int(_parts[0].translate(_tr)), int(_parts[1].translate(_tr))
+        _seq.extend(range(_a, _b + 1))
+    else:
+        _seq.append(int(_parts[0].translate(_tr)))
+first_seen = list(dict.fromkeys(_seq))
+src_eq("引用首现严格单调 1..N（I 专项机检断言）", first_seen, list(range(1, len(first_seen) + 1)))
+src_eq("引用总数 19（含 data citations 与书目）", len(first_seen), 19)
+
+# ============ 9. 数字反向扫描（UNCOVERED，技能 §4.3 GO 前置强制；周期3 建档轮补建） ============
+# 作用域：MS（去写作备忘、剔除 References→Table 1 块）+ SI + CL 的散文行（剔除以 | 起始的表格行）
+# 排除：URL/DOI/基金号/邮编/软件版本；年份=时间标签；白名单=定义性常数（逐条留理由）
+_scan_ms = re.sub(r"## References.*?(?=## Table 1)", "",
+                  open(MS, encoding="utf-8").read().split("## 写作备忘")[0], flags=re.S)
+# 头部状态块（> 起始的内部留痕行，不进交付 docx）不参与扫描——与 make_docx 同规则剥离
+_scan_ms = re.sub(r"\A(#[^\n]*\n\n?)(?:>[^\n]*\n)+", r"\1", _scan_ms)
+_scan_rest = "\n".join(open(p, encoding="utf-8").read().split("## 写作备忘")[0] for p in paths[1:])
+_scan_text = _scan_ms + "\n" + _scan_rest
+_scan_text = re.sub(r"https?://\S+|10\.\d{4,5}/\S+|zenodo\.\d+", " ", _scan_text)   # URL/DOI
+_scan_text = re.sub(r"grant [A-Za-z0-9]+", " ", _scan_text)                          # 基金号
+_scan_text = re.sub(r"(?:Shanghai|Qionghai) \d+", " ", _scan_text)                   # 邮编
+_scan_text = re.sub(r"Python ≥?3\.\d+", " ", _scan_text)                             # 软件版本
+_scan_prose = "\n".join(ln for ln in _scan_text.splitlines() if not ln.lstrip().startswith("|"))
+covered_vals = set()
+for _ok, _name, _needle in checks:
+    if _ok and not str(_needle).startswith("(不得出现)"):
+        for _tok in re.findall(r"\d[\d,]*(?:\.\d+)?", str(_needle)):
+            try:
+                covered_vals.add(float(str(_tok).replace(",", "")))
+            except ValueError:
+                pass
+WHITELIST_VALUES = {  # 定义性常数白名单（技能 S2 类，逐条留痕）
+    15.0,    # 15-rule signature library；legacy 15-digit identifier（章程定义）
+    25.0,    # 跨年分布扫描阈值（年度中位偏离 >25%，章程定义）+ Table 1 规则 1 BUN 阈值
+    90.0,    # Table 1 规则 1 UA 阈值（章程定义）
+    120.0,   # Table 1 规则 6 UA 单位残留阈值
+    3.0,     # Table 1 规则 7 FPG 下限
+    2.5,     # Table 1 规则 8 BMI 恒等式窗口
+    800.0,   # Table 1 规则 11 PLT 阈值
+    60.0,    # Table 1 规则 12 Hb 下限
+    1500.0,  # Table 1 规则 14 转氨酶上限
+    0.1, 99.9,   # Pass-1 分位画像 p0.1/p99.9（Methods 设计常数）
+    0.8,     # numeric-share criterion ≥0.8（Methods 设计常数）
+    95.0,    # 百分位标签（95th percentile）
+    11643.0, # GB 11643-1999 标准号
+    256.0,   # SHA-256（算法名内嵌 token，非数据值）
+    199.0,   # 生物标志名 ca199（CA19-9）内嵌 token，非数据值
+}
+uncovered = []
+for _m in re.finditer(r"\d[\d,]*(?:\.\d+)?", _scan_prose):
+    _tok = _m.group(0)
+    try:
+        _v = float(_tok.replace(",", ""))
+    except ValueError:
+        continue
+    if _v == int(_v) and 1900 <= _v <= 2099:
+        continue  # 年份 = 时间标签（波次年份/引用年份/豁免日期），定义性
+    if re.fullmatch(r"\d{1,3}(,\d{1,3})+", _tok):  # 枚举型 token（如 r∈{1,5,10}%）：分拆逐项判定
+        if all(float(_pt) in covered_vals or float(_pt) in WHITELIST_VALUES
+               for _pt in _tok.split(",")):
+            continue
+    if _v in covered_vals or _v in WHITELIST_VALUES:
+        continue
+    uncovered.append(_tok)
+checks.append((not uncovered, "reverse scan UNCOVERED=0（散文全数字落在锚覆盖集或白名单）",
+               f"UNCOVERED={len(uncovered)}: {uncovered[:12]}"))
+
+# ============ 10. 冻结 manifest 指纹断言（周期3 建档轮补建：防 G01 下游重建后指纹台账失真复发） ============
+import hashlib
+
+_PROC = os.path.join(r"<institution-path>", "data", "processed")
+_WAVE_DIR = os.path.join(r"<institution-path>", "data", "H")
+
+
+def _sha256(p):
+    h = hashlib.sha256()
+    with open(p, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+for _fname, _fp in mani.get("fingerprints", {}).items():
+    _p = os.path.join(_PROC, _fname)
+    if not os.path.exists(_p):
+        _p = os.path.join(_WAVE_DIR, _fname)
+    if os.path.exists(_p):
+        _ok = (_sha256(_p) == _fp["sha256"]) and (os.path.getsize(_p) == _fp["bytes"])
+        checks.append((_ok, f"manifest fingerprint {_fname}", f"[指纹] {_fp['sha256'][:12]}…"))
+    else:
+        checks.append((False, f"manifest fingerprint {_fname}", "文件缺失"))
 
 # ============ 输出 ============
 dfc = pd.DataFrame(checks, columns=["verdict", "name", "needle"])
