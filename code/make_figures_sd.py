@@ -97,14 +97,14 @@ def arrow(ax, x1, y1, x2, y2, color="#444444", lw=1.2, style="-|>"):
 fig, ax = plt.subplots(figsize=(7.2, 4.6))
 ax.set_xlim(0, 100); ax.set_ylim(0, 64); ax.axis("off")
 
-# 源数据库列（3 框一组：高 10.5、间隙 3.5，组中心与中列对齐 = 31.25）
-srcs = [(f"Cohort A — community adults\n7 waves · {N_A_REC:,} records\n{N_A_IND:,} adults", 40),
-        (f"Cohort B — health management\n4 waves · {N_B_LAB_M} lab rows\n{N_B_PY:,} person-years", 26),
-        (f"Cohort C — regional examination\n3 waves · {N_C_REC:,} records\n{N_C_DEATH:,} death records", 12)]
+# 源数据库列（3 框与中列前三框同行对齐：y=47/33/19，高 10.5、间隙 3.5）
+srcs = [(f"Cohort A — community adults\n7 waves · {N_A_REC:,} records\n{N_A_IND:,} adults", 47),
+        (f"Cohort B — health management\n4 waves · {N_B_LAB_M} lab rows\n{N_B_PY:,} person-years", 33),
+        (f"Cohort C — regional examination\n3 waves · {N_C_REC:,} records\n{N_C_DEATH:,} death records", 19)]
 for t, y in srcs:
     box(ax, 0.5, y, 26.5, 10.5, t, "#EFF5FB", "#0072B2", 5.6)
-ax.text(13.75, 53.3, "Source databases\n(pseudonymised, 1:1 mirror)",
-        ha="center", va="center", fontsize=7.0, style="italic")
+ax.text(13.75, 62.2, "Source databases\n(pseudonymised, 1:1 mirror)",
+        ha="center", va="top", fontsize=7.0, style="italic")
 
 # 四步闭环（竖列）
 steps = [("1 · DETECT", "15 physiological signatures\n+ cross-year median scan\n+ correlation probes", 47),
@@ -115,21 +115,21 @@ for t, sub, y in steps:
     box(ax, 32.5, y, 31, 10.5, f"{t}\n{sub}", "#FFF7EC", "#E69F00", 6.0)
 for y1, y2 in [(47, 43.5), (33, 29.5), (19, 15.5)]:
     arrow(ax, 48, y1, 48, y2, "#E69F00", 1.4)
-ax.text(48, 60.3, "Detect–Quantify–Repair–Verify closed loop",
-        ha="center", va="center", fontsize=7.5, style="italic")
+ax.text(48, 62.2, "Detect–Quantify–Repair–Verify closed loop",
+        ha="center", va="top", fontsize=7.5, style="italic")
 
 # 数据资产列（2 框一组：高 10.5、间隙 3.5，组中心 31.25）
 assets = [("Cleaned analysis layers", "DR1–DR3 · controlled access\nperson-wave / person-year\ntables + screening vars", 33, "#EDF7F0", "#009E73"),
           ("Governance artefacts", "DR4 · open\nsignature library · audits\nrepair reports · harness", 19, "#EDF7F0", "#009E73")]
 for t, sub, y, fc, ec in assets:
     box(ax, 73.5, y, 25.5, 10.5, f"{t}\n{sub}", fc, ec, 5.8)
-ax.text(86.25, 46.3, "Data records (this Descriptor)",
-        ha="center", va="center", fontsize=7.0, style="italic")
+ax.text(86.25, 62.2, "Data records (this Descriptor)",
+        ha="center", va="top", fontsize=7.0, style="italic")
 
 # 源→闭环（左侧汇流线：三个库统一流入闭环起点 DETECT）
-ax.plot([30.0, 30.0], [17.25, 52.25], color="#0072B2", lw=1.1,
+ax.plot([30.0, 30.0], [24.25, 52.25], color="#0072B2", lw=1.1,
         solid_capstyle="round", zorder=1)
-for y in (45.25, 31.25, 17.25):
+for y in (52.25, 38.25, 24.25):
     ax.plot([27.2, 30.0], [y, y], color="#0072B2", lw=1.1, zorder=1)
 arrow(ax, 30.0, 52.25, 32.3, 52.25, "#0072B2", 1.3)
 # 闭环→资产（右侧汇流线：DR1–DR3 与 DR4 均为全闭环产出，非单步产出）
