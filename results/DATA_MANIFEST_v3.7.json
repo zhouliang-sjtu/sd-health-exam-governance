@@ -1,0 +1,51 @@
+{
+ "database_version": "v3.7",
+ "freeze_date": "2026-09-23",
+ "frozen_by": "课题组（周良）",
+ "status": "FROZEN - 唯一权威分析数据库；统计分析一律使用本版本",
+ "lineage": {
+  "v3.4": "单年度清洁库架构（2022 左移一位/2023 右移两位整行重排 + 00_link 同口径重建）",
+  "v3.5(2026-09-18)": "2020 超声脂肪肝复原口径同步（D-018 收敛）：该年无'超声检查结论/主检结论'字段，按论文06 11_build_h2020_layer 的 h2020_fat_state_patch（16,146 行全覆盖；src_rule: descriptive 12,446/negative 3,438/direct 19/no_liver_text 243）将 fatty/fatty_degree 写回 2020 全部行——fat_state=1 共 7,018（与其他年份量级一致）；analysis 全量重派生（masld/fat_state 2020 同步恢复）。B55 所见列补充验证：v3.4 现行 fatty 无系统性漏取（A0B1 仅 1 行），本同步为口径统一而非纠错。",
+  "v3.6(2026-09-20)": "值级置空补课（R22-H1 P0·路径 A）：v3.4/v3.5 单年清洁库重建未重放 v3.2 时代 G01 值级置空（章程表 1 规则 3–14 默认动作），释放层基线签名阳性 266/309 行。B67 按章程默认动作对 checkup_long 与 wave_level 补置空并复扫归零；审计表 B67_value_nullify_v36_audit.csv。镜像层原始值语义不变。canonical 规范名化文件（H_checkup_long.csv/H_analysis_long.csv）同步 v3.6；analysis_long 派生层经 S00c(v3.6) 重派生（masld↔steatosis_cmrf 对齐 0 不一致）。2026-09-22 指纹复核（论文00 周期3 S0）：wave_level 经 G01 下游重建字节变化（16,693,929→16,735,124 bytes），治理语义经基线探针（0/105,195 静默）与 m2 全量重跑逐位复现双重证实，指纹台账刷新至当前冻结件",
+  "v3.7(2026-09-23)": "B68 试纸文本解析修复（D-023）：LIS 报告格式 2022 起切换（B代：弱阳性/阳性(N+)/4+），2023-2024 渐为主；v3.6 及以前解析词典（A代：N+(浓度) 家族与裸 N+）未覆盖 B 代文本，亦未覆盖 A 代裸 '+'/'+-'/'+—'/'－'，致 8,619 行 uprot_score/proteinuria 失真（2024 波阳性率被压至 0.11%）。修复：map_dipstick 三代格式穷尽词典（语义锚定浓度刻度 trace=0.15/1+=0.3/2+=1.0/3+=3.0 g/L），同步产出 uglu/ubld/uket/uwbc 四个 score 列（105→109 列）；迁移矩阵全为 NA→有效值（3/2,543/4,147/1,732/194），无降级、无 0↔阳性翻转。2026-09-25 补课闭环：G01/S00c 同源旧词典同步 map_dipstick 后重跑 G01，wave_level 重生成（16,735,124→16,742,717 bytes；仅 uprot_score/proteinuria 两列 8,619 行变更，与 v3.7 分析层 122,575 行多重集逐值全等，人级层不变；审计表 B69_wave_level_regen_audit.csv 五重审计全绿）。治理记录归论文00（B68/B69）",
+  "FROZEN": "本版为唯一权威分析数据库"
+ },
+ "known_defects_fixed": {
+  "D-018": "H 库 2020 波 fatty 主库口径与论文04/05/06 panel 复原口径不一致（19 vs 7,018）——v3.5 统一为复原口径",
+  "D-022": "v3.4/v3.5 重建值级治理回归（BP 反转 130/UA 残留 131/FPG 低值 14 等家族在释放层未置空）——v3.6 补课归零",
+  "D-023": "H 库试纸五维度（uprot/uglu/ubld/uket/uwbc）文本解析未覆盖 2022 起 B 代 LIS 报告格式与 A 代裸 +/-/+- 格式——v3.7 map_dipstick 穷尽词典修复"
+ },
+ "governance": "数据清洗治理全部问题由论文00 记录报告（B44–B68）",
+ "fingerprints": {
+  "H_checkup_long.csv": {
+   "sha256": "1345178081bc945fddbcf747ff5a8d3bba91f85f14e32016e69a215469ee0ed7",
+   "bytes": 47964538
+  },
+  "H_analysis_long.csv": {
+   "sha256": "e04e0f72a2d844a268235f6f83ca1c946553b6858a025dd9aec3ab683f9b5edd",
+   "bytes": 77481325
+  },
+  "H_checkup_long_v3.6_20260920.csv": {
+   "sha256": "1345178081bc945fddbcf747ff5a8d3bba91f85f14e32016e69a215469ee0ed7",
+   "bytes": 47964538
+  },
+  "H_analysis_long_v3.6_20260920.csv": {
+   "sha256": "aa099120424fa521ea47e810cba2b5b941d5624f4367cf9319b3430ce1e49ba7",
+   "bytes": 75513409
+  },
+  "H_wave_level_v1.0.csv.gz": {
+   "sha256": "0de4527e638516c08ea92f16136cb94e86c8e9c44502f8f9a9f92609c347f6e1",
+   "bytes": 16742717
+  },
+  "H_analysis_long_v3.7_20260923.csv": {
+   "sha256": "e04e0f72a2d844a268235f6f83ca1c946553b6858a025dd9aec3ab683f9b5edd",
+   "bytes": 77481325
+  }
+ },
+ "snapshots": [
+  {
+   "snapshot": "H_analysis_long_v3.7_20260923.csv",
+   "sha256": "e04e0f72a2d844a268235f6f83ca1c946553b6858a025dd9aec3ab683f9b5edd"
+  }
+ ]
+}

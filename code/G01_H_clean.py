@@ -13,13 +13,15 @@
   docs/H_治理报告_20260914.md
 """
 import hashlib
+import re
+
 import numpy as np
 import pandas as pd
 
-W = r"<institution-path>"
-IN = r"<institution-path>"
-P2020 = r"<institution-path>"
-MAPF = r"<institution-path>"
+W = r"D:/projects/Paper/00-清洗源数据库"
+IN = r"D:/projects/Paper/00-三线探索-多模态动态队列/data/processed/H_checkup_long_v3.6_20260920.csv"
+P2020 = r"D:/projects/Paper/论文06-T3-MASLD逆转自然史与生存获益/data/processed/h2020_fat_state_patch.csv"
+MAPF = r"D:/projects/Data/_deid_key/mapping_H_idcard.csv"
 VERSION = "v1.0"
 rep = []
 
@@ -72,25 +74,42 @@ df["fib4"] = np.where((df["plt"] > 0) & (df["alt"] > 0) & (df["ast"] > 0),
                       df["age"] * df["ast"] / (df["plt"] * np.sqrt(df["alt"])), np.nan)
 df["hsi"] = 8 * (df["alt"] / df["ast"].replace(0, np.nan)) + df["bmi"] + 2 * (1 - df["sex_male"])
 
-def map_uprot(v):
+# 试纸半定量映射（D-023/B68 治理修复对齐，随 v3.7 生效）：与 00-三线探索 01_build_analysis.py
+# map_dipstick 逐字同源——三代 LIS 报告格式穷尽覆盖（A 代裸/带浓度、B 代弱阳性/阳性(N+)/4+、裸 +/++）；
+# 乱码（'0.60','33+','16+','=' 等）与弃检/拒检 → NaN；评分语义：阴性0/trace±0.5/1+ 1/2+ 2/3+ 3/4+ 4
+def map_dipstick(v):
     if pd.isna(v):
         return np.nan
     s = str(v).strip()
-    if s in ("阴性", "—", "-", "neg", "Neg", "N"):
+    if s in ("", "×", "弃检", "拒检"):
+        return np.nan
+    if s.startswith("阴性") or s in ("-", "—", "－", "neg", "Neg", "N", "正常", "未见"):
         return 0.0
-    if s in ("±", "trace", "TRACE", "微量"):
+    if s in ("±", "trace", "TRACE", "微量", "弱阴性") or s.startswith(("+-", "+—", "弱阳性")):
         return 0.5
-    if s.startswith("1"):
+    m = re.match(r"^([1-4])\s*[+＋]", s)        # '1+(0.3)' / '2+(1.0)' / '3+(>200)' / '4+'
+    if m:
+        return float(m.group(1))
+    m = re.match(r"^[+＋]([1-4])[+＋]?$", s)    # '+1' '+2'（加号前缀格式）
+    if m:
+        return float(m.group(1))
+    if s == "+":
         return 1.0
-    if s.startswith("2"):
+    if s == "++":
         return 2.0
-    if s.startswith("3"):
+    if s == "+++":
         return 3.0
-    if s.startswith("4"):
+    if s in ("++++", "＋＋＋＋"):
         return 4.0
-    return pd.to_numeric(s, errors="coerce")
+    if s.startswith("阳性"):                    # '阳性(+)' / '阳性(2+)' / '阳性（3+）'
+        m = re.search(r"([1-4])", s)
+        return float(m.group(1)) if m else 1.0
+    n = pd.to_numeric(s, errors="coerce")       # 裸数字仅接受 0–4 整数（'2','2.00'；拒收 '0.60','1.025'）
+    if pd.notna(n) and float(n).is_integer() and 0 <= n <= 4:
+        return float(n)
+    return np.nan
 
-df["uprot_score"] = df["uprot"].apply(map_uprot)
+df["uprot_score"] = df["uprot"].apply(map_dipstick)
 df["proteinuria"] = (df["uprot_score"] >= 1).astype("Float64")
 df.loc[df["uprot_score"].isna(), "proteinuria"] = pd.NA
 

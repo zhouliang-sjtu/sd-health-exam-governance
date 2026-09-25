@@ -1,0 +1,8 @@
+﻿check,result,detail
+E1 shape/columns,PASS,"old=(122575, 78) new=(122575, 78) 列序一致=True"
+E2 only-uprot-cols-changed,PASS,"差异列=[('uprot_score', 8619), ('proteinuria', 8619)]"
+E3a no-proteinuria-flips,PASS,"1→0=0, 0→1=0"
+E3b valid→NA(乱码回收)计数,PASS,"n=0, 旧值分布={}"
+E4 yearly-positivity-vs-B68,PASS,"new={2018: 4.78, 2019: 6.23, 2020: 9.3, 2021: 8.87, 2022: 8.18, 2023: 7.14, 2024: 5.91} ref={2018: 4.78, 2019: 6.23, 2020: 9.3, 2021: 8.87, 2022: 8.18, 2023: 7.14, 2024: 5.91}"
+E5 equal-to-v37-analysis-layer,PASS,rows w/a=122575/122575 多重集差异数=0（逐值全等）
+A1 person-level-unchanged,PASS,"shape old=(30677, 9) new=(30677, 9) equal=True"
