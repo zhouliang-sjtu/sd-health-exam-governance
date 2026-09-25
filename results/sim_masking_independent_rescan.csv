@@ -1,0 +1,12 @@
+﻿cohort,column,cells,id18,id15,date8,mobile,landline,digits7plus,email
+H,ecg_text,122107,0,0,0,0,0,0,0
+H,past_history,0,0,0,0,0,0,0,0
+H,chronic_mgmt_flag,122575,0,0,0,0,0,0,0
+H,smoke,122221,0,0,0,0,0,0,0
+H,drink,122220,0,0,0,0,0,0,0
+C,id,1389967,0,0,758,403,2270,148973,0
+C,qdate,1389967,0,0,0,0,0,0,0
+C,smoke_raw,1055299,0,0,0,0,0,0,0
+C,drink_raw,1049710,0,0,0,0,0,0,0
+C,us_text,703755,0,0,0,0,0,21,0
+C,ecg_text,734000,0,0,0,0,0,31,0
