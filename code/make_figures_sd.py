@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 
-BASE = r"<institution-path>"
+BASE = r"D:\projects\Paper\论文00-多源体检队列数据治理与质量审计"
 RES = os.path.join(BASE, "results")
 FIG = os.path.join(BASE, "figures", "sd")
 os.makedirs(FIG, exist_ok=True)
@@ -23,11 +23,11 @@ os.makedirs(FIG, exist_ok=True)
 # 白名单留痕（定义性常数，不入工件驱动）：15 规则库、k=1 事件参数、fig2b 切片 7880:7880+9,396
 import re as _re
 
-_H_REP = open(r"<institution-path>", encoding="utf-8").read()
-_HM_REP = open(r"<institution-path>", encoding="utf-8").read()
-_PG_REP = open(r"<institution-path>", encoding="utf-8").read()
-_PDM_REP = open(r"<institution-path>", encoding="utf-8").read()
-_SNAP = open(r"<institution-path>", encoding="utf-8").read()
+_H_REP = open(r"D:\projects\Paper\00-清洗源数据库\docs\H_治理报告_wave重生成_20260925.md", encoding="utf-8").read()  # B68/B69 后现行报告（数字口径与旧件逐位同源）
+_HM_REP = open(r"D:\projects\Paper\00-清洗源数据库\docs\H_mirror_治理报告_20260914.md", encoding="utf-8").read()
+_PG_REP = open(r"D:\projects\Paper\00-清洗源数据库\docs\PG_治理报告_20260914.md", encoding="utf-8").read()
+_PDM_REP = open(r"D:\projects\Paper\00-清洗源数据库\docs\PD_mirror_治理报告_v1.1_20260916.md", encoding="utf-8").read()
+_SNAP = open(r"D:\projects\Paper\00-清洗源数据库\数据资产快照_v2.1.md", encoding="utf-8").read()
 _NEG = open(os.path.join(RES, "m2_pd_negative.txt"), encoding="utf-8").read()
 _BLIND = open(os.path.join(RES, "m2_blind2022.txt"), encoding="utf-8").read()
 _GRID = pd.read_csv(os.path.join(RES, "m2_grid_summary.csv"))
@@ -63,8 +63,8 @@ BL_TRUE = _x(r"注入真值行: ([\d,]+)", _BLIND, int)             # 9,500
 BL_RECALL = f"{BL_FLAG / BL_TRUE:.3f}"                         # 0.987
 
 # 2022 原始波（before）与修复后（after）；仅取数值列，标识列不读取不落盘
-RAW_XLS = r"<institution-path>"
-AFTER_CSV = r"<institution-path>"
+RAW_XLS = r"D:\projects\Data\H社区数据\体检数据2018-2024\2022年总数.xls"
+AFTER_CSV = r"D:\projects\Paper\00-三线探索-多模态动态队列\data\processed\H_checkup_long_v2fix2022.csv"
 
 OI = ["#0072B2", "#E69F00", "#009E73", "#D55E00", "#CC79A7", "#56B4E9", "#F0E442"]
 plt.rcParams.update({
@@ -74,8 +74,10 @@ plt.rcParams.update({
 
 
 def save(fig, name):
-    fig.savefig(os.path.join(FIG, name + ".png"), dpi=400)
-    fig.savefig(os.path.join(FIG, name + ".pdf"))
+    # 元数据抑制（审稿技能 §11 净化条款：生成器内建，禁事后修补）——PNG tEXt Software；PDF /Creator+/Producer+/CreationDate
+    fig.savefig(os.path.join(FIG, name + ".png"), dpi=400, metadata={"Software": None})
+    fig.savefig(os.path.join(FIG, name + ".pdf"),
+                metadata={"Creator": None, "Producer": None, "CreationDate": None})
     plt.close(fig)
     print(f"[fig] {name} done")
 

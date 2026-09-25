@@ -13,10 +13,10 @@ import re
 import sys
 import pandas as pd
 
-BASE = r"<institution-path>"
+BASE = r"D:\projects\Paper\论文00-多源体检队列数据治理与质量审计"
 RES = os.path.join(BASE, "results")
-CLEAN = r"<institution-path>"
-SANXIAN = r"<institution-path>"
+CLEAN = r"D:\projects\Paper\00-清洗源数据库"
+SANXIAN = r"D:\projects\Paper\00-三线探索-多模态动态队列"
 MS = os.path.join(BASE, "20_paper-methodology", "Manuscript_SciData_v1.md")
 SI = os.path.join(BASE, "manuscript", "Supplementary_SciData_v1.md")
 CL = os.path.join(BASE, "manuscript", "submission_kit_v1", "04_cover_letter", "Cover_Letter.md")
@@ -108,7 +108,7 @@ check("domain recalls 0.985|0.985", f"{d1:.3f}|{d2:.3f}")
 
 # ============ 4. 治理产物锚（报告文本数字存在性） ============
 snap = open(os.path.join(CLEAN, "数据资产快照_v2.1.md"), encoding="utf-8").read()
-h_rep = open(os.path.join(CLEAN, "docs", "H_治理报告_20260914.md"), encoding="utf-8").read()
+h_rep = open(os.path.join(CLEAN, "docs", "H_治理报告_wave重生成_20260925.md"), encoding="utf-8").read()
 hm_rep = open(os.path.join(CLEAN, "docs", "H_mirror_治理报告_20260914.md"), encoding="utf-8").read()
 pg_rep = open(os.path.join(CLEAN, "docs", "PG_治理报告_20260914.md"), encoding="utf-8").read()
 pd_rep = open(os.path.join(CLEAN, "docs", "PD_治理报告_v1.1_20260916.md"), encoding="utf-8").read()
@@ -184,14 +184,14 @@ src_ok("readme 842/563", clean_readme, "842 个检验项目逐项目统计与值
 
 # ============ 4b. 文本域审计与血缘（2026-09-19 升级节源锚） ============
 import json
-GOV = r"<institution-path>"
+GOV = r"D:\projects\Paper\00-数据质量核验与治理-20260917"
 b36c = json.load(open(os.path.join(GOV, "B36c_chain_verify.json"), encoding="utf-8"))
 b36s = pd.read_csv(os.path.join(GOV, "B36_suspects.csv"))
 src_eq("B36_suspects rows 24（24 对源锚）", int(len(b36s)), 24)
 b50 = open(os.path.join(GOV, "B50_impact_assessment.md"), encoding="utf-8").read()
 baobei = open(os.path.join(GOV, "论文00报备记录_20260917.md"), encoding="utf-8").read()
 zongkong = open(os.path.join(GOV, "00_问题清单总控.md"), encoding="utf-8").read()
-mani = json.load(open(os.path.join(RES, "DATA_MANIFEST_v3.6.json"), encoding="utf-8"))
+mani = json.load(open(os.path.join(SANXIAN, "data", "processed", "DATA_MANIFEST_v3.7.json"), encoding="utf-8"))
 src_eq("b36c urine rows 7,159", int(b36c["nUrineECG"]), 7159)
 src_eq("b36c rad ECG 7,001", int(b36c["radIsECG"]), 7001)
 src_eq("b36c reverse 0", int(b36c["ecgColECG"]), 0)
@@ -210,7 +210,26 @@ src_ok("ledger 7,179/7,180", baobei, "7,179/7,180")
 src_ok("ledger 97.8%", baobei, "97.8%")
 src_ok("总控 bare rebuild 0.433→0.224", zongkong, "0.433→0.224")
 src_ok("总控 uprot 11,850→20,916", zongkong, "11,850→20,916")
-src_eq("manifest db version v3.6", str(mani.get("database_version")), "v3.6")
+src_eq("manifest db version v3.7", str(mani.get("database_version")), "v3.7")
+
+# ============ 4c. SIM-R3-2/R3-3 补充分析产物锚（2026-09-25 第六批） ============
+r32 = pd.read_csv(os.path.join(RES, "sim_r32_extraction_crosscheck.csv"), encoding="utf-8-sig")
+src_eq("R3-2 子样 n=200", len(r32), 200)
+src_eq("R3-2 总一致（分类∧逐值）", int(r32["agree"].sum()), 200)
+_frame = int(dict(ln.split("=") for ln in open(os.path.join(RES, "sim_r32_frame.txt"), encoding="utf-8").read().splitlines())["frame"])
+src_eq("R3-2 抽样框分母（侧车工件）", _frame, 267933)
+r33 = pd.read_csv(os.path.join(RES, "sim_r33_boundary_sensitivity.csv"), encoding="utf-8-sig")
+src_eq("R3-3 数值主导项目 563", len(r33), 563)
+_r33_num = int(r33["n_num"].sum())
+_r33_strict = int(r33["oor_strict"].sum())
+_r33_loose = int(r33["oor_loose"].sum())
+src_eq("R3-3 数值行合计", _r33_num, 15104587)
+src_eq("R3-3 released p0.1/p99.9 拦截", _r33_strict, 23695)
+src_eq("R3-3 alternative p1/p99 拦截", _r33_loose, 243592)
+src_eq("R3-3 Δ 合计", _r33_loose - _r33_strict, 219897)
+src_eq("R3-3 Δ 中位/项", int(r33["delta_rows"].median()), 38)
+src_eq("R3-3 Δ 最大/项", int(r33["delta_rows"].max()), 1866)
+src_eq("R3-3 Δ=0 项目数", int((r33["delta_rows"] == 0).sum()), 176)
 
 # ============ 5. 稿件数字存在性（写法变体兼容；2026-09-17 导师合并版锚点） ============
 for name, needle in [
@@ -287,6 +306,8 @@ for name, needle in [
     ("ethics heading", "### Ethics statement"),
     ("ethics filled", "exemption opinion dated 8 September 2026"),
     ("ethics committee", "Public Health and Nursing Research Ethics Committee"),
+    ("ethics PIPL 锚点句（SIM2-R4-1）", "in accordance with China's Personal Information Protection Law and the 2023 inter-agency measures"),
+    ("ethics 再标识风险句（SIM2-R4-1）", "Residual re-identification risk was assessed with emphasis on the mortality-linked layer"),
     ("sw impl heading", "### Code availability"),
     ("code access statement", "under an open licence, without access restrictions"),
     ("ack filled", "The authors thank the examination organisations"),
@@ -306,7 +327,7 @@ for name, needle in [
     ("dr records ref", "governance-artefact record (Table 2)"),
     ("dr4 table open ref（R11 修复锚）", "Open¹⁵"),
     ("dr doi resolvable", "resolvable persistent identifiers"),
-    ("da available-not-visible", "available-but-not-visible model"),
+    ("da available-not-visible", "charter-based remote-analysis model (available-but-not-visible)"),
     ("da first-author-lz", "addressed to the first author (L.Z.)"),
     ("ref13 doi", "zenodo.22846416"),
     ("ref14 doi", "zenodo.22846608"),
@@ -332,7 +353,7 @@ for name, needle in [
     ("BS range 8-10", "definitions⁸–¹⁰"),
     ("BS waves ref11", "between waves¹¹ (Fig. 1)"),
     ("dr 28.9M total", "30 raw source forms totalling 28.9 million records"),
-    ("cohort B years", "4 waves (2023–2026)"),
+    ("ms.cohort B years", "4 waves (2023–2026; the 2026 wave is a partial annual cycle with 8,482 person-years)"),
     ("privacy crossref DA", "described in Data Availability"),
     ("ECG first use", "electrocardiogram (ECG)"),
     # ---- 图与 SI 表正文引用（R7-I/F 轮修复）----
@@ -361,7 +382,22 @@ for name, needle in [
     ("bare rebuild ecg", "from 0.433 to 0.224"),
     ("bare rebuild uprot", "11,850 to 20,916"),
     ("parity 122,574", "122,574 of them"),
-    ("frozen v3.6 manifest", "frozen v3.6 manifest"),
+    ("frozen v3.7 manifest", "frozen v3.7 manifest"),
+    ("sampled extracts cap", "at most 1,000 rows per layer"),
+    ("cohort B partial 2026", "partial annual cycle with 8,482 person-years"),
+    ("si table S6 ref", "baseline characteristics are summarised in Table S6"),
+    ("si table S7 ref", "per-variable availability in the released wave layers in Table S7"),
+    # ---- SIM-R3-2/R3-3（2026-09-25 第六批）----
+    ("si table S8 ref", "Table S8 reports the cross-implementation audit of the Cohort C glucose extraction"),
+    ("si table S9 ref", "Table S9 summarises the flagged-rate distribution and its sensitivity to the percentile choice"),
+    ("R3-2 TV 异构路径", "deliberately heterogeneous code path"),
+    ("R3-2 TV 一致率", "classification and two-decimal field agreement were both 200/200"),
+    ("R3-3 released 拦截", "rose from 23,695 rows (0.157% of the 15,104,587 numeric-dominant values)"),
+    ("R3-3 alternative 拦截", "to 243,592 rows (+219,897; median +38 rows per item, at most +1,866 on any single item)"),
+    ("R3-3 p1/p99 标记", "alternative percentiles (p1/p99)"),
+    ("R3-3 敏感性收束句", "flagged-rate profile is quantified rather than assumed"),
+    ("independent masking audit", "independent second-family pattern audit of the released free-text fields"),
+    ("masking audit 52", "identified 52 identifier-serial-shaped digit strings in Cohort C (0.004% of text cells)"),
     ("rule15 matrix", "header-domain × content-domain matrix (186 text columns × 7 waves)"),
     ("scanner distributed", "scanner is distributed with the repository code"),
     ("quantification displaced text", "displaced-text recovery counts"),
@@ -388,13 +424,13 @@ for name, needle in [
 for name, needle in [
     ("快照预估 2,080", "2,080"),
     ("快照预估 326 行", "326 行"),
-    ("G01b 注释 566", "566"),
+    # （"566"/"0.203" 全文本禁入已撤——S9 逐项目拦截率列可合法出现相同数字；主稿禁入见下方 ms_text_ban）
     ("PD 含重复口径 1,407,195", "1,407,195"),
     ("H 人级旧数 30,678", "30,678"),
     ("旧摘要 70,180", "70,180"),
     ("未用依赖 lifelines", "lifelines"),
     ("未用数据库 MySQL", "MySQL"),
-    ("旧残留口径 0.203%", "0.203"),
+    # （"0.203" 全文本禁入已撤——S9 逐项目拦截率列可合法出现；主稿禁入见 ms_text_ban）
     ("旧残留口径 2,828", "2,828"),
     ("旧可移植性 F1 0.72", "F1 0.72"),
     # ---- 导师版陈旧口径（2026-09-17 合并裁决：一律禁入）----
@@ -452,9 +488,15 @@ for name, needle in [
 ]:
     checks.append((needle not in ms_text_ban, f"ban.{name}", f"(不得出现·主稿) {needle}"))
 
+# ---- SI 表首现顺序机检（S8/S9 晚于 S7 纪律机检化；2026-09-25 第六批）----
+_ms_body = open(MS, encoding="utf-8").read().split("## 写作备忘")[0]
+_spos = [_ms_body.find(f"Table S{i}") for i in range(1, 10)]
+src_eq("SI 表 S1..S9 均被正文引用", all(p >= 0 for p in _spos), True)
+src_eq("SI 表首现顺序 S1..S9 严格递增", all(a < b for a, b in zip(_spos, _spos[1:])), True)
+
 # ============ 7. 审计计数自检（动态：稿件与 SI 声明的检查总数须等于本脚本实际检查数） ============
-# 偏移 16 = 本节自检 2 + §8 图件护栏 4 + §9 反向扫描 1 + §10 manifest 指纹 9（周期3 建档轮补建后口径）
-audit_n = len(checks) + 16
+# 偏移 11 = 本节自检 2 + §8 图件护栏 2 + 引用单调 2 + §9 反向扫描 1 + §10 manifest 指纹 4（v3.7 manifest 口径，2026-09-25）
+audit_n = len(checks) + 11
 check("audit count self", f"passes all {audit_n} checks")
 check("si audit count（SI 头部与 Table S4 的 N 须等于本脚本实际检查数）",
       f"{audit_n}/{audit_n} checks PASS")
@@ -492,6 +534,8 @@ _scan_text = re.sub(r"https?://\S+|10\.\d{4,5}/\S+|zenodo\.\d+", " ", _scan_text
 _scan_text = re.sub(r"grant [A-Za-z0-9]+", " ", _scan_text)                          # 基金号
 _scan_text = re.sub(r"(?:Shanghai|Qionghai) \d+", " ", _scan_text)                   # 邮编
 _scan_text = re.sub(r"Python ≥?3\.\d+", " ", _scan_text)                             # 软件版本
+_scan_text = re.sub(r"v\d+\.\d+", " ", _scan_text)                                   # 数据层/文件版本号 token（v3.6/v3.7/v1.1 等，定义性）
+_scan_text = re.sub(r"20\d{2}-\d{2}-\d{2}", " ", _scan_text)                         # ISO 日期（冻结日期等，定义性时间标签）
 _scan_prose = "\n".join(ln for ln in _scan_text.splitlines() if not ln.lstrip().startswith("|"))
 covered_vals = set()
 for _ok, _name, _needle in checks:
@@ -540,8 +584,8 @@ checks.append((not uncovered, "reverse scan UNCOVERED=0（散文全数字落在�
 # ============ 10. 冻结 manifest 指纹断言（周期3 建档轮补建：防 G01 下游重建后指纹台账失真复发） ============
 import hashlib
 
-_PROC = os.path.join(r"<institution-path>", "data", "processed")
-_WAVE_DIR = os.path.join(r"<institution-path>", "data", "H")
+_PROC = os.path.join(r"D:\projects\Paper\00-三线探索-多模态动态队列", "data", "processed")
+_WAVE_DIR = os.path.join(r"D:\projects\Paper\00-清洗源数据库", "data", "H")
 
 
 def _sha256(p):
